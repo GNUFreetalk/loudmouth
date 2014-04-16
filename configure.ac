@@ -6,6 +6,20 @@ AC_COPYRIGHT([
 	Copyright (C) 2007 Nokia Corporation
 ])
 
+m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES(yes)])
+
+if make --help 2>&1 | grep -q no-print-directory; then
+   AM_MAKEFLAGS="$AM_MAKEFLAGS --no-print-directory";
+fi
+
+if make --help 2>&1 | grep -q quiet; then
+   AM_MAKEFLAGS="$AM_MAKEFLAGS --quiet"
+fi
+
+if libtool --help 2>&1 | grep -q quiet; then
+   AM_LIBTOOLFLAGS="--quiet";
+fi
+
 AC_CONFIG_SRCDIR(loudmouth/loudmouth.h)
 AC_CONFIG_HEADERS(config.h)
 AC_CONFIG_AUX_DIR(build)
@@ -56,7 +70,7 @@ AC_SUBST([LT_AGE])
 
 AM_PATH_GLIB_2_0
 
-AC_CHECK_HEADERS([arpa/inet.h fcntl.h memory.h netdb.h netinet/in.h netinet/in_systm.h stdlib.h string.h sys/socket.h sys/time.h unistd.h]) 
+AC_CHECK_HEADERS([arpa/inet.h fcntl.h memory.h netdb.h netinet/in.h netinet/in_systm.h stdlib.h string.h sys/socket.h sys/time.h unistd.h])
 AC_CHECK_HEADERS([winsock2.h arpa/nameser_compat.h])
 
 if test "$ac_cv_header_winsock2_h" = "yes"; then
@@ -90,7 +104,7 @@ AC_SUBST(LIBTASN1_REQUIRED)
 
 LM_CHECK_TIMEZONE
 
-PKG_CHECK_MODULES(LOUDMOUTH, 
+PKG_CHECK_MODULES(LOUDMOUTH,
                   glib-2.0 >= $GLIB2_REQUIRED
                   gobject-2.0 >= $GLIB2_REQUIRED)
 
@@ -154,7 +168,7 @@ dnl +--------------------------------------------------------+
 dnl | Checking for SSL support                               |-
 dnl +--------------------------------------------------------+
 AC_ARG_WITH(ssl,
-	    AS_HELP_STRING([--with-ssl=@<:@gnutls|openssl|no@:>@], 
+	    AS_HELP_STRING([--with-ssl=@<:@gnutls|openssl|no@:>@],
 			   [Which SSL implementation to use [[default=gnutls]]]),
 	    ac_ssl=$withval,
 	    ac_ssl=gnutls)
@@ -188,23 +202,23 @@ elif test "$ac_ssl" = "openssl"; then
   dnl Look for OpenSSL
   AC_CHECK_HEADERS([openssl/ssl.h])
   OLDLIBS="$LIBS"
-  AC_CHECK_LIB(crypto, 
-	       BIO_f_base64, 
-	       [AC_CHECK_LIB(ssl, 
-		             SSL_new, 
+  AC_CHECK_LIB(crypto,
+	       BIO_f_base64,
+	       [AC_CHECK_LIB(ssl,
+		             SSL_new,
                              [SSL_LIB="-lssl -lcrypto"
-		             AC_DEFINE(HAVE_OPENSSL, 
-				       [], 
-				       [Have OpenSSL])], 
-		             [have_openssl=no], 
-			     [-lcrypto])], 
-	       [have_openssl=no], 
+		             AC_DEFINE(HAVE_OPENSSL,
+				       [],
+				       [Have OpenSSL])],
+		             [have_openssl=no],
+			     [-lcrypto])],
+	       [have_openssl=no],
 	       [])
 
   if test "x$have_openssl" = "xno"; then
     AC_MSG_ERROR([OpenSSL was not found, use --with-ssl=[[no|gnutls]] to
                   build without SSL support or with GnuTLS])
-  else 
+  else
     LIBS="$OLDLIBS $SSL_LIB"
     enable_ssl=OpenSSL
   fi
@@ -324,4 +338,3 @@ echo "
 
 	Now type 'make' to build Loudmouth
 "
-
